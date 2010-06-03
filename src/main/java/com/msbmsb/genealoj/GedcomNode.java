@@ -28,6 +28,7 @@ public class GedcomNode {
   private String m_reference = null;
   private String m_data = null;
   private Map<String, List<GedcomNode> > m_children = new HashMap<String, List<GedcomNode> >();
+  private Map<String, GedcomNode> m_referencedNodes = new HashMap<String, GedcomNode>();
 
   /**
    * Constructors
@@ -98,7 +99,8 @@ public class GedcomNode {
   }
 
   /**
-   * Add a GedcomNode as a child of this node
+   * Add a GedcomNode as a child of this node.
+   * If child is a reference, also add it to the map for reference-&gt;node
    * @param child the node that is to be set as child
    */
   public void addChild(GedcomNode child) {
@@ -107,6 +109,12 @@ public class GedcomNode {
       m_children.put(child.tag(), nodes = new ArrayList<GedcomNode>());
     }
     nodes.add(child);
+
+    // if this child is a reference node, add it to map of ref nodes
+    // if this child is not a reference node, nothing will be done
+    if(m_level == 0) {
+      addReferencedNode(child);
+    }
   }
 
   /**
@@ -117,6 +125,28 @@ public class GedcomNode {
    */
   public List<GedcomNode> getChildren(String tag) {
     return m_children.get(tag);
+  }
+
+  /**
+   * Add this node to the reference-&gt;GedcomNode map
+   * If node is not a reference or this is not a level=0 node,
+   * then nothing will be added to the map
+   * @param node the node to add
+   */
+  public void addReferencedNode(GedcomNode node) {
+    String ref = node.reference();
+    if((m_level !=0) || (ref != null)) {
+      m_referencedNodes.put(ref, node);
+    }
+  }
+
+  /**
+   * Return the node with the parameter reference
+   * @param ref the reference for which to retrieve the GedcomNode
+   * @return the GedcomNode with the given ref reference
+   */
+  public GedcomNode getReferencedNode(String ref) {
+    return m_referencedNodes.get(ref);
   }
 
   /**
