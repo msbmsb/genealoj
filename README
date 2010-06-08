@@ -1,11 +1,13 @@
 GenealoJ is a Java parser for GEDCOM[1] files. Due to most previously-available 
 GEDCOM parsers having a class for potentially each of the 130 tags[2], GenealoJ
 is written in the simplest way possible with as few as possible classes to deal 
-with. Currently there are 2 classes total:
+with. Currently there are 4 classes total:
 
 GenealoJ: The main parsing & container class
 GedcomNode: A generic node for a gedcom line. Holds level, tag, reference, data
- and children nodes.
+ and children nodes
+IndividualNode: A specialized GedcomNode for individuals
+Utils: A utilities class for operating on the GedcomNode objects
 
 (More documentation soon)
 
