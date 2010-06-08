@@ -27,7 +27,7 @@ public class GedcomNode {
   private String m_tag;
   private String m_reference = null;
   private String m_data = null;
-  private Map<String, List<GedcomNode> > m_children = new HashMap<String, List<GedcomNode> >();
+  private Map<String, List<GedcomNode> > m_childrenByTag = new HashMap<String, List<GedcomNode> >();
   private Map<String, GedcomNode> m_referencedNodes = new HashMap<String, GedcomNode>();
 
   /**
@@ -103,10 +103,10 @@ public class GedcomNode {
    * If child is a reference, also add it to the map for reference-&gt;node
    * @param child the node that is to be set as child
    */
-  public void addChild(GedcomNode child) {
-    List<GedcomNode> nodes = getChildren(child.tag());
+  public void addChildNode(GedcomNode child) {
+    List<GedcomNode> nodes = getChildrenWithTag(child.tag());
     if(nodes == null) {
-      m_children.put(child.tag(), nodes = new ArrayList<GedcomNode>());
+      m_childrenByTag.put(child.tag(), nodes = new ArrayList<GedcomNode>());
     }
     nodes.add(child);
 
@@ -118,13 +118,33 @@ public class GedcomNode {
   }
 
   /**
-   * Get the list of all children nodes given a tag
+   * Get the list of all children nodes of m_level+1 given a tag
    * @param tag the tag to retrieve on
    * @return List<GedcomNode> of nodes matching tag;
    *         null if no matches found
    */
-  public List<GedcomNode> getChildren(String tag) {
-    return m_children.get(tag);
+  public List<GedcomNode> getChildrenWithTag(String tag) {
+    return m_childrenByTag.get(tag);
+  }
+
+  /**
+   * Recursively get the list of all decendant nodes given a tag
+   * Builds a list from all children of children
+   * @param tag the tag to retrieve on
+   * @return List<GedcomNode> of recursively retrieved nodes matching tag;
+   *         null if no matches found
+   */
+  public List<GedcomNode> getDecendantsWithTag(String tag) {
+    List<GedcomNode> decList = getChildrenWithTag(tag);
+
+    Iterator nodes = m_childrenByTag.entrySet().iterator();
+    while(nodes.hasNext()) {
+      List<GedcomNode> childrenList = (ArrayList<GedcomNode>)((Map.Entry)nodes.next()).getValue();
+      for(GedcomNode n : childrenList) {
+        decList.addAll(n.getDecendantsWithTag(tag));
+      }
+    }
+    return decList;
   }
 
   /**
@@ -147,6 +167,15 @@ public class GedcomNode {
    */
   public GedcomNode getReferencedNode(String ref) {
     return m_referencedNodes.get(ref);
+  }
+
+  /**
+   * Perform any necessary finalization once this and all children node
+   * have been constructed
+   */
+  public void finalize() {
+    // intended to be used by any node extending this
+    return;
   }
 
   /**
@@ -181,10 +210,16 @@ public class GedcomNode {
     }
 
     // iterate through children and recurse
-    Iterator nodes = m_children.entrySet().iterator();
+    Iterator nodes = m_childrenByTag.entrySet().iterator();
     while(nodes.hasNext()) {
+      List<GedcomNode> childrenList = (ArrayList<GedcomNode>)((Map.Entry)nodes.next()).getValue();
+      for(GedcomNode n : childrenList) {
+        sb.append("\n");
+        sb.append(n.toString());
+      }
+      /*
       sb.append("\n");
-      sb.append(((Map.Entry)nodes.next()).getValue().toString());
+      sb.append(((Map.Entry)nodes.next()).getValue().toString());*/
     }
 
     return sb.toString();

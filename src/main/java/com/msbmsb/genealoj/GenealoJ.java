@@ -9,6 +9,8 @@
 package com.msbmsb.genealoj;
 
 import com.msbmsb.genealoj.GedcomNode;
+import com.msbmsb.genealoj.IndividualNode;
+import com.msbmsb.genealoj.Utils;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -16,12 +18,13 @@ import java.io.IOException;
 import java.io.FileNotFoundException;
 
 import java.util.List;
+import java.util.ArrayList;
 
 public class GenealoJ {
   /**
-   * root is the GedcomNode for all level=0 nodes
+   * m_parseRoot is the GedcomNode for all level=0 nodes
    */
-  public GedcomNode root = new GedcomNode(-1, "ROOT");
+  private GedcomNode m_parseRoot = new GedcomNode(-1, "ROOT");
 
   /**
    * Constructor. Given a file name, parses the file and builds a hierarchy
@@ -32,9 +35,11 @@ public class GenealoJ {
     BufferedReader br;
     try {
       br = new BufferedReader(new FileReader(file));
-      // begin parsing at the root level=-1 node
-      parseGedcom(br, root);
+      // begin parsing at the m_parseRoot level=-1 node
+      parseGedcom(br, m_parseRoot);
       br.close();
+      // now link individuals in the genealogy graph through their families
+      linkIndividuals(m_parseRoot);
     } catch(FileNotFoundException fne) {
       System.err.println("Input file: " + file + " not found!");
     } catch(IOException ioe) {
@@ -50,7 +55,7 @@ public class GenealoJ {
    *         null if none found with given tag
    */
   public List<GedcomNode> getNodes(String tag) {
-    return root.getChildren(tag);
+    return m_parseRoot.getChildrenWithTag(tag);
   }
   
   /**
@@ -81,8 +86,9 @@ public class GenealoJ {
         // here, advance the BufferedReader position
         GedcomNode child = buildGedcomNode(br.readLine().trim());
         // add new node as child to current node and recurse on new node
-        node.addChild(child);
         parseGedcom(br, child);
+        node.addChildNode(child);
+        child.finalize();
       } else {
         // backtrack to parent node
         return;
@@ -105,24 +111,18 @@ public class GenealoJ {
       return new GedcomNode(level, toks[1]);
     } else {
       // is this a reference
-      if(isReference(toks[1])) {
+      if(Utils.isReference(toks[1])) {
         // if it is, use contructor with reference
-        return new GedcomNode(level, toks[2], restFromTok(line, 2), toks[1]);
+        if(Utils.isIndividual(toks[2])) {
+          return new IndividualNode(level, toks[2], restFromTok(line, 2), toks[1]);
+        } else {
+          return new GedcomNode(level, toks[2], restFromTok(line, 2), toks[1]);
+        }
       } else {
         // else just construct with data
         return new GedcomNode(level, toks[1], restFromTok(line, 1));
       }
     }
-  }
-
-  /**
-   * Is this token of a gedcom line a reference?
-   * @param tok the token to check
-   * @return true if token is a reference;
-   *         false otherwise
-   */
-  public boolean isReference(String tok) {
-    return tok.startsWith("@") && tok.endsWith("@");
   }
 
   /**
@@ -152,9 +152,69 @@ public class GenealoJ {
   }
 
   /**
-   * Return a string representation of the root node
+   * Link all the individuals found in the given root through their families
+   * @param root the GedcomNode to begin with
+   */
+  public void linkIndividuals(GedcomNode root) {
+    List<GedcomNode> families = Utils.getFamilies(root);
+
+    for(GedcomNode family : families) {
+      // build a list of parents and children nodes. 
+      // These nodes are not the individuals, but are the references to 
+      // individuals in the FAM nodes
+      // calling linkFamily will handle getting the actual individuals
+      List<GedcomNode> parents = new ArrayList<GedcomNode>();
+      List<GedcomNode> children = new ArrayList<GedcomNode>();
+
+      // get all the necessary reference nodes
+      parents.addAll(family.getChildrenWithTag(Utils.HUSBAND_TAG));
+      parents.addAll(family.getChildrenWithTag(Utils.WIFE_TAG));
+      children.addAll(family.getChildrenWithTag(Utils.CHILD_TAG));
+
+      // now link the IndividualNodes through the family
+      linkFamily(root, family, parents, children);
+    }
+  }
+
+  /**
+   * Given the parameters, link the IndividualNodes for individuals in the
+   * genealogy graph with each other through the references in the FAM
+   * family nodes
+   * @param root the GedcomNode to be used as the root location of level=0
+   * @param family GedcomNode of the FAM node
+   * @param parents list of reference GedcomNodes pointing to husband &amp; wife
+   * @param children list of reference GedcomNodes pointint to children
+   */
+  public void linkFamily(GedcomNode root, GedcomNode family, 
+                          List<GedcomNode> parents, 
+                          List<GedcomNode> children) {
+    // use Utils to get the IndividualNodes for the members of this family
+    List<IndividualNode> pIndi = Utils.getIndividualsFromFamRef(root, parents);
+    List<IndividualNode> cIndi = Utils.getIndividualsFromFamRef(root, children);
+
+    // for each parent/husband/wife of family:
+    // add family reference
+    // add children list
+    // add rest of spouses
+    for(IndividualNode p : pIndi) {
+      p.addFamily(family);
+      p.addChildren(cIndi);
+      p.addSpouses(pIndi);
+    }
+
+    // for each child:
+    // add family reference
+    // add parent list
+    for(IndividualNode c : cIndi) {
+      c.addFamily(family);
+      c.addParents(pIndi);
+    }
+  }
+
+  /**
+   * Return a string representation of the m_parseRoot node
    */
   public String toString() {
-    return root.toString();
+    return m_parseRoot.toString();
   }
 }

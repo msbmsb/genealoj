@@ -47,6 +47,7 @@ public class GenealoJTest
     {
         String testFile = "example/example.ged";
         GenealoJ gedcom = new GenealoJ(testFile);
+        System.out.println("Output: ");
         System.out.println(gedcom);
         assertTrue(gedcom.getNodes("INDI").size() == 3);
     }
