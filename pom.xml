@@ -4,7 +4,7 @@
   <groupId>com.msbmsb.genealoj</groupId>
   <artifactId>genealoj</artifactId>
   <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
+  <version>0.1-SNAPSHOT</version>
   <name>genealoj</name>
   <description>Minimal GEDCOM parser in Java </description>
   <url>http://github.com/msbmsb/genealoj</url>
@@ -17,6 +17,16 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <distributionManagement>
+    <repository>
+      <id>repo</id>
+      <url>http://github.com/msbmsb/msbmsb-mvn-repo/raw/master/releases</url>
+    </repository>
+    <snapshotRepository>
+      <id>snapshot-repo</id>
+      <url>http://github.com/msbmsb/msbmsb-mvn-repo/raw/master/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
   <build>
     <plugins>
       <plugin>
