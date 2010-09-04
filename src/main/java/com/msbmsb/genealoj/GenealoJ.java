@@ -17,6 +17,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 
+import java.io.File;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -27,11 +28,21 @@ public class GenealoJ {
   private GedcomNode m_parseRoot = new GedcomNode(-1, "ROOT");
 
   /**
+   * Empty constructor
+   */
+  public GenealoJ() {
+  }
+
+  /**
    * Constructor. Given a file name, parses the file and builds a hierarchy
    * of GEDCOM lines represented by the GedcomNode class.
    * @param file filename of input GEDCOM file to parse
    */
   public GenealoJ(String file) {
+    boolean loaded = load(file);
+  }
+
+  public boolean load(String file) {
     BufferedReader br;
     try {
       br = new BufferedReader(new FileReader(file));
@@ -40,12 +51,19 @@ public class GenealoJ {
       br.close();
       // now link individuals in the genealogy graph through their families
       linkIndividuals(m_parseRoot);
+      return true;
     } catch(FileNotFoundException fne) {
       System.err.println("Input file: " + file + " not found!");
+      return false;
     } catch(IOException ioe) {
       System.err.println("IOException parsing file: " + file);
       ioe.printStackTrace();
+      return false;
     }
+  }
+
+  public boolean load(File file) {
+    return load(file.toString());
   }
 
   /**
