@@ -28,21 +28,54 @@ public class GenealoJ {
   private GedcomNode m_parseRoot = new GedcomNode(-1, "ROOT");
 
   /**
-   * Empty constructor
+   * File source for current gedcom parse
    */
-  public GenealoJ() {
-  }
+  private File m_gedcomFile = null;
+
+  /**
+   * Check for valid initialization of input file
+   */
+  private boolean m_initialized = false;
 
   /**
    * Constructor. Given a file name, parses the file and builds a hierarchy
    * of GEDCOM lines represented by the GedcomNode class.
-   * @param file filename of input GEDCOM file to parse
+   * @param file String filename of input GEDCOM file to parse
    */
   public GenealoJ(String file) {
-    boolean loaded = load(file);
+    m_gedcomFile = new File(file);
+    m_initialized = init();
   }
 
-  public boolean load(String file) {
+  /**
+   * Constructor. Given a File object, parses the file and builds a hierarchy
+   * of GEDCOM lines represented by the GedcomNode class.
+   * @param file File of input GEDCOM file to parse
+   */
+  public GenealoJ(File file) {
+    m_gedcomFile = file;
+    m_initialized = init();
+  }
+
+  /**
+   * Private initialization method for loading input GEDCOM file
+   * Private to enforce a one-parser-per-file contract
+   * and setting any necessary parameters
+   * @return boolean of initialized status
+   */
+  private boolean init() {
+    boolean initialized = true;
+    initialized &= load(m_gedcomFile);
+
+    return initialized;
+  }
+
+  /**
+   * Private method for loading the input GEDCOM file
+   * @param file File to load
+   * @return boolean of successful load
+   */
+  private boolean load(File file) {
     BufferedReader br;
     try {
       br = new BufferedReader(new FileReader(file));
@@ -60,10 +93,6 @@ public class GenealoJ {
       ioe.printStackTrace();
       return false;
     }
-  }
-
-  public boolean load(File file) {
-    return load(file.toString());
   }
 
   /**

@@ -50,12 +50,6 @@ public class GenealoJTest
         System.out.println("Output: ");
         System.out.println(gedcom);
         assertTrue(gedcom.getNodes("INDI").size() == 3);
-
-        GenealoJ gedcom1 = new GenealoJ();
-        gedcom1.load(testFile);
-        System.out.println("Output: ");
-        System.out.println(gedcom1);
-        assertTrue(gedcom1.getNodes("INDI").size() == 3);
     }
 }
 
