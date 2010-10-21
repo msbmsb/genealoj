@@ -128,20 +128,20 @@ public class GedcomNode {
   }
 
   /**
-   * Recursively get the list of all decendant nodes given a tag
+   * Recursively get the list of all descendant nodes given a tag
    * Builds a list from all children of children
    * @param tag the tag to retrieve on
    * @return List<GedcomNode> of recursively retrieved nodes matching tag;
    *         null if no matches found
    */
-  public List<GedcomNode> getDecendantsWithTag(String tag) {
+  public List<GedcomNode> getDescendantsWithTag(String tag) {
     List<GedcomNode> decList = getChildrenWithTag(tag);
 
     Iterator nodes = m_childrenByTag.entrySet().iterator();
     while(nodes.hasNext()) {
       List<GedcomNode> childrenList = (ArrayList<GedcomNode>)((Map.Entry)nodes.next()).getValue();
       for(GedcomNode n : childrenList) {
-        decList.addAll(n.getDecendantsWithTag(tag));
+        decList.addAll(n.getDescendantsWithTag(tag));
       }
     }
     return decList;

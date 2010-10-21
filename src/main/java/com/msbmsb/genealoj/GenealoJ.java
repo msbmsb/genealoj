@@ -104,6 +104,10 @@ public class GenealoJ {
   public List<GedcomNode> getNodes(String tag) {
     return m_parseRoot.getChildrenWithTag(tag);
   }
+
+  public List<GedcomNode> getDescendants(String tag) {
+    return m_parseRoot.getDescendantsWithTag(tag);
+  }
   
   /**
    * Parse given the input Reader and current node.
@@ -244,7 +248,7 @@ public class GenealoJ {
     // add children list
     // add rest of spouses
     for(IndividualNode p : pIndi) {
-      p.addFamily(family);
+      p.addFamilyAsHead(family);
       p.addChildren(cIndi);
       p.addSpouses(pIndi);
     }
@@ -253,7 +257,7 @@ public class GenealoJ {
     // add family reference
     // add parent list
     for(IndividualNode c : cIndi) {
-      c.addFamily(family);
+      c.addFamilyAsChild(family);
       c.addParents(pIndi);
     }
   }
