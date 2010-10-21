@@ -34,6 +34,8 @@ public class IndividualNode extends GedcomNode {
    * Quick-access list of family GedcomNodes that this individual is a part of
    */
   private List<GedcomNode> m_families = new ArrayList<GedcomNode>();
+  private List<GedcomNode> m_familiesAsHead = new ArrayList<GedcomNode>();
+  private List<GedcomNode> m_familiesAsChild = new ArrayList<GedcomNode>();
 
   /**
    * Quick-access container for the individual's surname only
@@ -48,7 +50,7 @@ public class IndividualNode extends GedcomNode {
    * Get this individual's surname. Build it if it hasn't been built yet.
    * @return the surname if available, or "" otherwise
    */
-  private String getSurname() {
+  public String getSurname() {
     List<GedcomNode> names = getChildrenWithTag("NAME");
     if(names != null && names.size() > 0) {
       if(m_surname.length() == 0) {
@@ -76,6 +78,24 @@ public class IndividualNode extends GedcomNode {
    */
   public void addFamily(GedcomNode family) {
     m_families.add(family);
+  }
+
+  /**
+   * Add a family node to this individual 
+   * as a head of family (husband/wife/parent)
+   * @param family
+   */
+  public void addFamilyAsHead(GedcomNode family) {
+    m_familiesAsHead.add(family);
+  }
+
+  /**
+   * Add a family node to this individual
+   * as a child of the family
+   * @param family
+   */
+  public void addFamilyAsChild(GedcomNode family) {
+    m_familiesAsChild.add(family);
   }
 
   /**
@@ -112,5 +132,26 @@ public class IndividualNode extends GedcomNode {
    */
   public void addChildren(List<IndividualNode> children) {
     m_children.addAll(children);
+  }
+
+  /**
+   * Get list of spouses for this individual
+   */
+  public List<IndividualNode> getSpouses() {
+    return m_spouses;
+  }
+
+  /**
+   * Get list of parents for this individual
+   */
+  public List<IndividualNode> getParents() {
+    return m_parents;
+  }
+
+  /**
+   * Get list of children for this individual
+   */
+  public List<IndividualNode> getChildren() {
+    return m_children;
   }
 }
