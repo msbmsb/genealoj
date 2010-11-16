@@ -22,6 +22,8 @@ public class Utils {
   public static String HUSBAND_TAG = "HUSB";
   public static String WIFE_TAG = "WIFE";
   public static String CHILD_TAG = "CHIL";
+  public static String PLACE_TAG = "PLAC";
+  public static String NAME_TAG = "NAME";
 
   /**
    * This class is intended to contain static functions, so disable constructing
@@ -38,12 +40,62 @@ public class Utils {
   }
 
   /**
+   * Get all the individuals from this root node that have no parents
+   * @param root the GedcomNode to use as a root for level=0 nodes
+   * @return a List<GedcomNode> containing all individual from root
+   *          that do not have parents
+   */
+  public static List<IndividualNode> getRootIndividuals(GedcomNode root) {
+    List<IndividualNode> roots = new ArrayList<IndividualNode>();
+    List<GedcomNode> indis = getIndividuals(root);
+    for(GedcomNode g : indis) {
+      try {
+        // attempt to cast to IndividualNode
+        IndividualNode i = (IndividualNode) g;
+        if(i.getParents().size() == 0) {
+          roots.add(i);
+        }
+      } catch(ClassCastException cce) {
+        // if the cast fails, just move on
+        continue;
+      }
+    }
+    return roots;
+  }
+
+  /**
+   * Get the farthest ancestor with the same surname from this node
+   * Assumption: follow patrilineal family naming
+   * @param node the node from which to search
+   * @return IndividualNode for the ancestor
+   *         return value will be equal to node param if 
+   *         there are no parents or no parents share the surname
+   */
+  public static IndividualNode getSurnameRoot(IndividualNode node) {
+    IndividualNode anc = node;
+
+    List<IndividualNode> parents = node.getParents();
+    for(IndividualNode p : parents) {
+      if(p.getSurname() == node.getSurname()) {
+        anc = getSurnameRoot(p);
+        break;
+      }
+    }
+
+    return anc;
+  }
+
+  /**
    * Get all the families found on the given root node
    * @param root the GedcomNode to use as a root for level=0 nodes
    * @return a List<GedcomNode> containing all family nodes
    */
   public static List<GedcomNode> getFamilies(GedcomNode root) {
     return root.getChildrenWithTag(FAMILY_TAG);
+  }
+
+  public static List<GedcomNode> getLocations(GedcomNode root) {
+    return root.getDescendantsWithTag(PLACE_TAG);
   }
 
   /**
