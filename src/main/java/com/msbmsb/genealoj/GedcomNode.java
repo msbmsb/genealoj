@@ -112,7 +112,7 @@ public class GedcomNode {
 
     // if this child is a reference node, add it to map of ref nodes
     // if this child is not a reference node, nothing will be done
-    if(m_level == 0) {
+    if(m_level != 0) {
       addReferencedNode(child);
     }
   }
@@ -155,7 +155,7 @@ public class GedcomNode {
    */
   public void addReferencedNode(GedcomNode node) {
     String ref = node.reference();
-    if((m_level !=0) || (ref != null)) {
+    if((m_level != 0) || (ref != null)) {
       m_referencedNodes.put(ref, node);
     }
   }
