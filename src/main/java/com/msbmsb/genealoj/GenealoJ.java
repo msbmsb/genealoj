@@ -108,6 +108,10 @@ public class GenealoJ {
   public List<GedcomNode> getDescendants(String tag) {
     return m_parseRoot.getDescendantsWithTag(tag);
   }
+
+  public GedcomNode getRoot() {
+    return m_parseRoot;
+  }
   
   /**
    * Parse given the input Reader and current node.
