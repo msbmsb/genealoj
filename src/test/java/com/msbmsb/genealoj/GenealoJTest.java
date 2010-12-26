@@ -49,6 +49,11 @@ public class GenealoJTest
         GenealoJ gedcom = new GenealoJ(testFile);
         System.out.println("Output: ");
         System.out.println(gedcom);
+        System.out.println("-------------------------------");
+        List<IndividualNode> roots = Utils.getRootIndividuals(gedcom.getRoot());
+        for(IndividualNode r : roots) {
+          System.out.println(r);
+        }
         assertTrue(gedcom.getNodes("INDI").size() == 3);
     }
 }
