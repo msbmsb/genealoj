@@ -41,6 +41,7 @@ public class IndividualNode extends GedcomNode {
    * Quick-access container for the individual's surname only
    */
   private String m_surname = "";
+  private String m_fullName = "";
 
   public IndividualNode(int level, String tag, String data, String reference) {
     super(level, tag, data, reference);
@@ -54,15 +55,19 @@ public class IndividualNode extends GedcomNode {
     List<GedcomNode> names = getChildrenWithTag("NAME");
     if(names != null && names.size() > 0) {
       if(m_surname.length() == 0) {
-        String fullName = names.get(0).data().trim();
-        if(fullName.charAt(fullName.length() - 1) == '/') {
-          int surnameBegin = fullName.indexOf('/');
-          m_surname = fullName.substring(++surnameBegin, fullName.length() - 1);
+        m_fullName = names.get(0).data().trim();
+        if(m_fullName.charAt(m_fullName.length() - 1) == '/') {
+          int surnameBegin = m_fullName.indexOf('/');
+          m_surname = m_fullName.substring(++surnameBegin, m_fullName.length() - 1);
         }
       } 
     }
 
     return m_surname;
+  }
+
+  public String getFullName() {
+    return m_fullName;
   }
 
   /**
