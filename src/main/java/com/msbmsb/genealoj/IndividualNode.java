@@ -159,4 +159,36 @@ public class IndividualNode extends GedcomNode {
   public List<IndividualNode> getChildren() {
     return m_children;
   }
+
+  /**
+   * Return a representative location for this individual
+   * Return birth location if available
+   * else return death location
+   * else return any other location
+   */
+  public GedcomNode getLocation() {
+    GedcomNode loc = getLocation("BIRT");
+    if(loc == null) {
+      loc = getLocation("DEAT");
+      if(loc == null) {
+        List<GedcomNode> any_plac = getChildrenWithTag("PLAC");
+        if(any_plac != null) {
+          loc = any_plac.get(0);
+        }
+      }
+    }
+
+    return loc;
+  }
+
+  public GedcomNode getLocation(String type) {
+    List<GedcomNode> top = getChildrenWithTag(type);
+    if(top != null) {
+      List<GedcomNode> top_plac = top.get(0).getChildrenWithTag("PLAC");
+      if(top_plac != null) {
+        return top_plac.get(0);
+      }
+    }
+    return null;
+  }
 }

@@ -112,6 +112,10 @@ public class GenealoJ {
   public GedcomNode getRoot() {
     return m_parseRoot;
   }
+
+  public List<IndividualNode> getIndividuals() {
+    return Utils.getIndividuals(m_parseRoot);
+  }
   
   /**
    * Parse given the input Reader and current node.
@@ -222,9 +226,12 @@ public class GenealoJ {
       List<GedcomNode> children = new ArrayList<GedcomNode>();
 
       // get all the necessary reference nodes
-      parents.addAll(family.getChildrenWithTag(Utils.HUSBAND_TAG));
-      parents.addAll(family.getChildrenWithTag(Utils.WIFE_TAG));
-      children.addAll(family.getChildrenWithTag(Utils.CHILD_TAG));
+      List<GedcomNode> husb = family.getChildrenWithTag(Utils.HUSBAND_TAG);
+      List<GedcomNode> wife = family.getChildrenWithTag(Utils.WIFE_TAG);
+      List<GedcomNode> child = family.getChildrenWithTag(Utils.CHILD_TAG);
+      if(husb != null) parents.addAll(husb);
+      if(wife != null) parents.addAll(wife);
+      if(child != null) children.addAll(child);
 
       // now link the IndividualNodes through the family
       linkFamily(root, family, parents, children);

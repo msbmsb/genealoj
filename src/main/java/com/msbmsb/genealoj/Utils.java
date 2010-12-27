@@ -35,8 +35,20 @@ public class Utils {
    * @param root the GedcomNode to use as a root for level=0 nodes
    * @return a List<GedcomNode> containing all individual nodes
    */
-  public static List<GedcomNode> getIndividuals(GedcomNode root) {
-    return root.getChildrenWithTag(INDIVIDUAL_TAG);
+  public static List<IndividualNode> getIndividuals(GedcomNode root) {
+    List<IndividualNode> roots = new ArrayList<IndividualNode>();
+    List<GedcomNode> indis = root.getChildrenWithTag(INDIVIDUAL_TAG);
+    for(GedcomNode g : indis) {
+      try {
+        // attempt to cast to IndividualNode
+        IndividualNode i = (IndividualNode) g;
+        roots.add(i);
+      } catch(ClassCastException cce) {
+        // if the cast fails, just move on
+        continue;
+      }
+    }
+    return roots;
   }
 
   /**
@@ -47,17 +59,10 @@ public class Utils {
    */
   public static List<IndividualNode> getRootIndividuals(GedcomNode root) {
     List<IndividualNode> roots = new ArrayList<IndividualNode>();
-    List<GedcomNode> indis = getIndividuals(root);
-    for(GedcomNode g : indis) {
-      try {
-        // attempt to cast to IndividualNode
-        IndividualNode i = (IndividualNode) g;
-        if(i.getParents().size() == 0) {
-          roots.add(i);
-        }
-      } catch(ClassCastException cce) {
-        // if the cast fails, just move on
-        continue;
+    List<IndividualNode> indis = getIndividuals(root);
+    for(IndividualNode i : indis) {
+      if(i.getParents().size() == 0) {
+        roots.add(i);
       }
     }
     return roots;
